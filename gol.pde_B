@@ -1,0 +1,159 @@
+
+int sizeX;
+int sizeY;
+
+int[][] grid;
+int[][] newGrid;
+int[][] change;
+int boxW = boxH = 15;
+
+boxColor = 0;
+bgColor = 255;
+
+void setup() {
+    size(screen.width, screen.height);
+    background(bgColor);
+    frameRate(4);
+
+    sizeX = (int)(width/boxW);
+    sizeY = (int)(height/boxH);
+
+    grid = new int[sizeX][sizeY];
+    change = new int[sizeX][sizeY];
+
+    
+    for (int i = 0; i < sizeX*sizeY; i++) {   
+        grid[(int)random(sizeX)][(int)random(sizeY)] = 1;   
+    }
+
+    noStroke();
+    fill(boxColor);
+    calculateCells();
+}
+
+void draw() {
+    fill(bgColor, 255);
+    rect(0,0,width,height);
+    fill(boxColor);
+
+    paintCells();
+    calculateCells();
+} 
+
+void resize(w,h) {
+    int newSizeX = (int)(w/boxW);
+    int newSizeY = (int)(h/boxH);
+    newGrid = new int[newSizeX][newSizeY];
+
+    int xO = (int)((newSizeX-sizeX)/2);
+    int yO = (int)((newSizeY-sizeY)/2);
+    //console.log(xO,yO);
+
+    for (int i=0; i<sizeX; i++) {
+        for (int j=0; j<sizeY; j++) {
+            if (grid[i][j] == 1) {
+                try {
+                    newGrid[i+xO][j+yO] = 1;
+                } catch(e) {}
+            }
+        }
+    }
+    sizeX = newSizeX;
+    sizeY = newSizeY;
+    size(w,h);
+    grid = newGrid;
+    change = new int[sizeX][sizeY];
+    //console.log(sizeX, sizeY, w,h);
+    calculateCells();
+}
+
+
+int calculateCells() {
+    for (int i = 0; i < sizeX; i++) { 
+        for (int j = 0; j < sizeY; j++) { 
+            int count = neighbors(i, j); 
+            if (count == 3 && grid[i][j] == 0) { 
+                change[i][j] = 1; 
+            } 
+            else if ((count < 2 || count > 3) && grid[i][j] == 1) { 
+                change[i][j] = -1;
+            } 
+            else if (count > 3 && grid[i][j] == 0) {
+                change[i][j] = 0;
+            }
+            else if ((count == 2)) { change[i][j] = 0; }
+        } 
+    } 
+}
+int paintCells() {
+    for (int i = 0; i < sizeX; i++) { 
+        for (int j = 0; j < sizeY; j++) { 
+            if ((change[i][j] == 1) || (change[i][j] == 0 && grid[i][j] == 1)) { 
+                grid[i][j] = 1; 
+                rect(i*boxW, j*boxH, boxW, boxH); 
+            } 
+            if (change[i][j] == -1) { 
+                grid[i][j] = 0; 
+            } 
+            change[i][j] = 0; 
+        } 
+    }
+}
+
+void mouseClicked() {
+    int x = (int)(mouseX/boxW);
+    int y = (int)(mouseY/boxH);
+    //console.log(x, y);
+
+    if(mouseButton == RIGHT) {
+        grid[x][y] = 1;
+        rect(x*boxW, y*boxH, boxW, boxH );
+
+        grid[(x + 1) % sizeX][y] = 1;
+        rect(((x + 1) % sizeX)*boxW, y*boxH, boxW, boxH);
+
+        grid[x][(y + 1) % sizeY] = 1;
+        rect(x*boxW, ((y + 1) % sizeY)*boxH, boxW, boxH);
+        
+        grid[(x + sizeX - 1) % sizeX][y] = 1;
+        rect(((x + sizeX - 1) % sizeX)*boxW, y*boxH, boxW, boxH);
+
+        grid[x][(y + sizeY - 1) % sizeY] = 1;
+        rect(x*boxW,((y + sizeY - 1) % sizeY)*boxH, boxW, boxH);
+
+        calculateCells();
+        return 0;
+    }
+
+    if (grid[x][y] == 0) {
+        grid[x][y] = 1;
+        rect(x*boxW, y*boxH, boxW, boxH );
+    } else {
+        grid[x][y] = 0;
+        fill(bgColor);
+        rect(x*boxW, y*boxH, boxW, boxH );
+        fill(boxColor);
+    }
+    calculateCells();
+}
+
+
+int neighbors(int x, int y) { 
+  return grid[(x + 1) % sizeX][y] + 
+         grid[x][(y + 1) % sizeY] + 
+         grid[(x + sizeX - 1) % sizeX][y] + 
+         grid[x][(y + sizeY - 1) % sizeY] + 
+         grid[(x + 1) % sizeX][(y + 1) % sizeY] + 
+         grid[(x + sizeX - 1) % sizeX][(y + 1) % sizeY] + 
+         grid[(x + sizeX - 1) % sizeX][(y + sizeY - 1) % sizeY] + 
+         grid[(x + 1) % sizeX][(y + sizeY - 1) % sizeY]; 
+}
+
+int clearStage() {
+    background(bgColor);
+    grid = new int[sizeX][sizeY];
+    change = new int[sizeX][sizeY];
+}
+int[][] getGrid() {
+    return grid;
+}

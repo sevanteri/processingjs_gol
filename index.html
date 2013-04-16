@@ -1,0 +1,134 @@
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+</head>
+<style rel="stylesheet" type="text/css">
+body { background-color: white; margin: 0; padding: 0;}
+#gol {
+    //border:1px solid;
+    left:0;
+    top:0;
+    position: absolute;
+    width: 100%;
+    height:100%;
+    z-index:-1;
+}
+#controls {
+    height: 30px;
+    background: white;
+    border-bottom: 1px solid;
+}
+#leftButtons {
+    float:left;
+}
+#rightButtons {
+    float:right;
+}
+</style>
+<body>
+
+<canvas id="gol"></canvas> 
+
+<div id="controls">
+    <div id="leftButtons">
+        <input type="submit" value="randomize" id="randomize" />
+    </div>
+    <div id="rightButtons">
+        Blur: <input id="blur" type="range" min="0" max="99" value="0" size="3" />
+        Cell Width:<input id="boxH" value="15" size="3" />
+        Cell Height:<input id="boxW" value="15" size="3" />
+        Shape:<select id="shape">
+            <option value="rect">rect</option>
+            <option value="ellipse">ellipse</option>
+        </select>
+        Speed: <input type="range" min="1" max="100" id="fr" value="4" size="3" />
+        <input type="submit" value="Next" id="next" />
+        <input type="submit" value="Play/Pause" id="toggle" />
+        <input type="submit" value="Clear" id="clear" />
+    </div>
+</div>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+<script src="html5slider.js"> </script>
+<script src="processing-1.2.1.min.js"></script>  
+<script type="text/javascript">
+$(document).ready(function() {
+    g = $("#gol");
+    var d = $(document);
+
+    w = d.width();
+    h = d.height();
+
+    g.prop("width", w);
+    g.prop("height", h);
+
+
+    $.get("gol.pde", function(data) {
+        p = new Processing(g[0], data);
+        p.resize(w,h);
+    });
+
+    var paused = false;
+    $("#toggle").click(function(e) {
+        p.togglePause();
+    });
+    $("#clear").click(function() {
+        p.clearStage();
+    });
+    $("#next").click(function() {
+        p.draw();
+    });
+    $("#randomize").click(function() {
+        p.randomize();
+    });
+
+
+    $("#shape").change(function() {
+        p.setShape($(this).val());
+    });
+
+    $("#boxW").change(function() {
+        p.setShapeWidth($(this).val());
+    });
+    $("#boxH").change(function() {
+        p.setShapeHeight($(this).val());
+    });
+    $("#fr").change(function() {
+        p.setFramerate($(this).val());
+    });
+    $("#blur").change(function() {
+        p.setBlur($(this).val());
+    });
+
+
+    
+    rez = function() {
+        w = d.width();
+        h = d.height();
+        p.resize(w,h);
+    }
+    $(window).resize(rez);
+    $(document).resize(rez);
+});
+</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22611307-1']);
+  _gaq.push(['_setDomainName', '.sevanteri.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</body>
+
+</html>
